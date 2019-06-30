@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>selector选择器</title>
+	</head>
+	<body>
+      <div class="controls">
+          <button id="reload" type="button">Reload</button>
+        </div>
+        
+        <div class="event-log">
+          <label>Event log:</label>
+          <textarea readonly class="event-log-contents" rows="8" cols="30"></textarea>
+        </div>
+        
+    <script src="jQuery.1.0.2.js"></script>
+    <script>
+			  console.log($('<div>')) //创建DOM
+			  console.log($('#box'))
+			  console.log($(document))
+    </script>
+
+    <script>
+        const log = document.querySelector('.event-log-contents');
+        const reload = document.querySelector('#reload');
+
+        reload.addEventListener('click', () => {
+          log.textContent ='';
+          window.setTimeout(() => {
+              window.location.reload(true);
+          }, 200);
+        });
+
+        window.addEventListener('load', (event) => {
+            log.textContent = log.textContent + 'load\n';
+        });
+
+        document.addEventListener('readystatechange', (event) => {
+            log.textContent = log.textContent + `readystate: ${document.readyState}\n`;
+        });
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            log.textContent = log.textContent + `DOMContentLoaded\n`;
+        });
+      </script>
+
+    <pre>
+    一、页面状态
+    1. readystatechange  -->  readystate: interactive
+    2. DOMContentLoaded  -->  DOMContentLoaded
+    3. readystatechange  -->  readystate: complete
+    4. load              -->  load
+    </pre>
+</html>
