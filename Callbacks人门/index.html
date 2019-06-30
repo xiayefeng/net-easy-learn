@@ -7,6 +7,7 @@
 		<title>Callbacks入门&原理分析</title>
 	</head>
 	<body>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
 		<script src="Underscore.js"></script>
 		<script>
 			var cb = _.callbacks()
@@ -25,6 +26,56 @@
       cb.remove(fn2)
 			cb.add(fn3)
 			cb.fire()
-		</script>
+    </script>
+    <script>
+      var topics = {};
+      jQuery.Topic = function(id) {
+				var callbacks,
+					method,
+					topic = id && topics[id];
+
+				if (!topic) {
+					callbacks = jQuery.Callbacks();
+					topic = {
+						publish: callbacks.fire,
+						subscribe: callbacks.add,
+						unsubscribe: callbacks.remove
+					};
+					if (id) {
+						topics[id] = topic;
+					}
+				}
+				return topic;
+      };
+
+      // Subscribers
+      /* 	$.Topic("mailArrived").subscribe(fn1);
+			$.Topic("mailArrived").subscribe(fn2);
+			$.Topic("mailSent").subscribe(fn1);
+
+			// Publisher
+			$.Topic("mailArrived").publish("hello world!");
+			$.Topic("mailSent").publish("woo! mail!"); */
+      $.Topic("mailArrived").subscribe(fn1);
+
+      // create a new instance of Deferreds
+      var dfd = $.Deferred();
+      
+      // define a new topic (without directly publishing)
+			var topic = $.Topic("mailArrived");
+
+			// when the deferred has been resolved, publish a
+			// notification to subscribers
+			dfd.done(topic.publish);
+
+			// Here the Deferred is being resolved with a message
+			// that will be passed back to subscribers. It's possible to
+			// easily integrate this into a more complex routine
+			// (eg. waiting on an ajax call to complete) so that
+			// messages are only published once the task has actually
+			// finished.
+			dfd.resolve("it's been published!");
+
+    </script>
 	</body>
 </html>
