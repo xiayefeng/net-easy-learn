@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Deferred延迟对象</title>
+</head>
+<body>
+  <script src="./jQuery.1.0.2.js"></script>
+  <script>
+   console.log('页面加载')
+   var wait = function() {
+     var der = $.Deferred()  //延迟对象    deferred 
+     var test = function(){
+        console.log('老司机开车了')
+        der.resolve()  //成功     队列中的处理函数  调用成功这个队列中的处理函数
+     }
+     setTimeout(test, 2000)
+     return der
+   }
+   $.when(wait())  //promise对象promise.done()   self.add
+     .done(function(){
+       console.log('执行成功')
+     })
+     .fail(function(){
+       console.log('执行失败')
+     })
+   console.log('页面加载完成')
+     
+				/*
+				var cbs =  $.callbacks();   //队列        //  var list = tuple[2], jQuery.callbacks("once memory")
+				cbs.add(function(){   //添加处理函数    //promise.done()  promise.fail()
+					
+				});
+				
+				cbs.fire();  //执行队列中的处理函数      //der.resolve("max"); 
+				
+				*/
+  </script>
+</body>
+</html>
