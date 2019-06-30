@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Callbacks入门&原理分析</title>
+	</head>
+	<body>
+		<script src="Underscore.js"></script>
+		<script>
+			var cb = _.callbacks()
+			var fn1 = function() {
+				console.log(1)
+			}
+			var fn2 = function() {
+				console.log(2)
+			}
+			var fn3 = function() {
+				console.log(3)
+			}
+			cb.add(fn1)
+			cb.add(fn2)
+      cb.fire()
+      cb.remove(fn2)
+			cb.add(fn3)
+			cb.fire()
+		</script>
+	</body>
+</html>
