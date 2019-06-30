@@ -6,7 +6,7 @@
 	/* 
 		 返回匹配到的数组,如果没有匹配到返回 null 
 		 完全匹配的文本作为数组的第一项  ["<div>"]
-		 将正则括号里匹配成功的一次追加到数组尾部  ["<div>", "div"]
+		 将正则括号里匹配成功的依次追加到数组尾部  ["<div>", "div"]
 	 */
 	var version = "1.0.1";
 	var jQuery = function(selector, context) { 
