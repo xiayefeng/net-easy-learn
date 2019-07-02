@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>jQuery事件</title>
+  <style>
+    #id {
+      height: 150px;
+      border: 1px solid #333;
+    }
+    #box {
+      width: 300px;
+      height: 300px;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div id="id"></div>
+  <div id="box"></div>
+  <script src="./jQuery.1.0.2.js"></script>
+  <script>
+    //多个事件绑定同一个函数
+		/* 	$("#id").on("mouseover mouseout", function() {
+				console.log("loading...")
+			});
+
+			//多个事件绑定不同函数
+			$("#id").on({
+				mouseover: function() {
+					$("body").css("background-color", "lightgray");
+				},
+				mouseout: function() {
+					$("body").css("background-color", "lightblue");
+				},
+				click: function() {
+					$("body").css("background-color", "yellow");
+				}
+			});
+
+			//绑定自定义事件
+			$("#id").on("myOwnEvent", function(event, showName) {
+				console.log("loading...")
+			});
+      $("#id").trigger("myOwnEvent", ["max"]); */
+      
+      //没有代理子元素的事件 仅为自己绑定事件
+			$("#box").on("click", function() {
+				console.log("loading...");
+			});
+	
+  </script>
+</body>
+</html>
