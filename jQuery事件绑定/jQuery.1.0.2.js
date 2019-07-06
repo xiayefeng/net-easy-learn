@@ -461,8 +461,10 @@
 			var type;
 			if (typeof types === "object") {
 				for (type in types) {
-					this.on(types[type], fn);
+					console.log(type)
+					this.on(type, types[type]);
 				}
+				return
 			}
 			return this.each(function() {
 				//this  element对象
