@@ -171,7 +171,7 @@
 			var fire = function(data) {
 				memory = options.memory && data;
 				index = starts || 0;
-				start = 0;
+				starts = 0;
 				testting = true;
 				length = list.length;
 				for (; index < length; index++) {
@@ -223,7 +223,24 @@
 					state: function() {
 						return state;
 					},
-					then: function( /* fnDone, fnFail, fnProgress */ ) {
+					then: function( fnDone, fnFail, fnProgress ) {
+						var funs = [].slice.call(arguments)
+						// console.log(func)
+						//
+            return jQuery.Deferred(function(newDeferred){
+              tuples.forEach(function(tuple, i){
+								var fn = jQuery.isFunction(funs[i]) && funs[i]
+								deferred[tuple[1]](function(){
+									var returnDeferred = fn && fn.apply(this, arguments)
+									if (returnDeferred && jQuery.isFunction(returnDeferred.promise)) {
+										returnDeferred.promise()
+										.done(newDeferred.resolve)
+										.fail(newDeferred.reject)
+										.progress(newDeferred.notify)   
+									}
+								})
+							})
+						}).promise()
 					},
 					promise: function(obj) {
 						return obj != null ? jQuery.extend(obj, promise) : promise;
@@ -256,6 +273,10 @@
 
 			// Make the deferred a promise
 			promise.promise(deferred);
+			
+			if(func){
+				func.call(deferred, deferred)
+			}  
 
 			return deferred;
 		},

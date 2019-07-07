@@ -8,7 +8,7 @@
 			var fire = function(data){
 				memory = options.memory && data;
 				index = starts||0;
-				start = 0;
+				starts = 0;
 				testting = true;  // once 为 true, 保证触发一次
 				length = list.length;
 				for(;index < length;index++){
@@ -23,7 +23,9 @@
 					start = list.length;
 					args.forEach(function(fn){
 						if(toString.call(fn) ==="[object Function]"){
-							list.push(fn);
+							if(!options.unique || !self.has(fn)) {
+                list.push(fn);
+							}
 						}
 					});
 					if(memory){
@@ -45,6 +47,9 @@
 						var idx = list.findIndex((item) => item === fn)
 						list.splice(idx, 1)
 					}
+				},
+				has: function(fn) {
+          return fn ? list.indexOf(fn) > -1 : !!(list && list.length)
 				}
 			}
 			return self;

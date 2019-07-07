@@ -200,7 +200,7 @@
 			var fire = function(data) {
 				memory = options.memory && data
 				index = starts || 0
-				start = 0
+				starts = 0
 				testting = true
 				length = list.length
 				for (; index < length; index++) {
@@ -218,7 +218,9 @@
 					start = list.length
 					args.forEach(function(fn) {
 						if (toString.call(fn) === '[object Function]') {
-							list.push(fn)
+							if(!options.uniqe || !self.has(fn)){
+								list.push(fn)
+							}
 						}
 					})
 					if (memory) {
@@ -238,6 +240,9 @@
 				fire: function() {
 					self.fireWith(this, arguments)
 				},
+				has: function(fn) {
+					return fn ? list.indexOf(fn) > -1 : true
+				}
 			}
 			return self
 		},
