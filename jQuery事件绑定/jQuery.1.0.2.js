@@ -399,6 +399,7 @@
 			//event = jQuery.event.fix(event);
 
 			//提取当前元素在cache中的events属性值。 click
+			// console.log(data_priv.get(this, "events"))
 			var handlers = (data_priv.get(this, "events") || {})[event.type] || [];
 			console.log(handlers)
 			event.delegateTarget = this;
