@@ -241,7 +241,7 @@
 					self.fireWith(this, arguments)
 				},
 				has: function(fn) {
-					return fn ? list.indexOf(fn) > -1 : true
+					return fn ? list.indexOf(fn) > -1 : !!(list && list.length)
 				}
 			}
 			return self
@@ -259,7 +259,25 @@
 					state: function() {
 						return state
 					},
-					then: function(/* fnDone, fnFail, fnProgress */) {},
+					then: function(fnDone, fnFail, fnProgress) {
+						var funs = [].slice.call(arguments)
+						// console.log(func)
+						//
+            return jQuery.Deferred(function(newDeferred){
+              tuples.forEach(function(tuple, i){
+								var fn = jQuery.isFunction(funs[i]) && funs[i]
+								deferred[tuple[1]](function(){
+									var returnDeferred = fn && fn.apply(this, arguments)
+									if (returnDeferred && jQuery.isFunction(returnDeferred.promise)) {
+										returnDeferred.promise()
+										.done(newDeferred.resolve)
+										.fail(newDeferred.reject)
+										.progress(newDeferred.notify)   
+									}
+								})
+							})
+						}).promise()
+					},
 					promise: function(obj) {
 						return obj != null ? jQuery.extend(obj, promise) : promise
 					},
