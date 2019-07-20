@@ -10,6 +10,10 @@
 	var core_version = '1.0.1'
 	var optionsCache = {}
 
+	var class2type = {}
+	var toString = class2type.toString
+	var hasOwn = class2type.hasOwnProperty
+
 	function returnTrue() {
 		return true
 	}
@@ -23,6 +27,25 @@
 		try {
 			return document.activeElement
 		} catch (err) {}
+	}
+
+	function isArrayLike(obj) {
+		// Support: iOS 8.2 (not reproducible in simulator)
+		// `in` check used to prevent JIT error (gh-2145)
+		// hasOwn isn't used here due to false negatives
+		// regarding Nodelist length in IE
+		var length = !!obj && 'length' in obj && obj.length,
+			type = jQuery.type(obj)
+
+		if (type === 'function' || jQuery.isWindow(obj)) {
+			return false
+		}
+
+		return (
+			type === 'array' ||
+			length === 0 ||
+			(typeof length === 'number' && length > 0 && length - 1 in obj)
+		)
 	}
 
 	var jQuery = function(selector, context) {
@@ -137,6 +160,22 @@
 		expando: 'jQuery' + (core_version + Math.random()).replace(/\D/g, ''),
 		guid: 1, //计数器
 		now: Date.now, //返回当前时间距离时间零点(1970年1月1日 00:00:00 UTC)的毫秒数
+
+		type: function(obj) {
+			if (obj == null) {
+				return obj + ''
+			}
+
+			// Support: Android<4.0, iOS<6 (functionish RegExp)
+			return typeof obj === 'object' || typeof obj === 'function'
+				? class2type[toString.call(obj)] || 'object'
+				: typeof obj
+		},
+		
+		isWindow: function( obj ) {
+			return obj != null && obj === obj.window;
+		},
+
 		//类型检测
 		isPlainObject: function(obj) {
 			return typeof obj === 'object'
@@ -152,8 +191,10 @@
 		//类数组转化成正真的数组
 		markArray: function(arr, results) {
 			var ret = results || []
-			if (arr != null) {
+			if (isArrayLike(arr)) {
 				jQuery.merge(ret, typeof arr === 'string' ? [arr] : arr)
+			} else {
+				[].push.call(ret, arr)
 			}
 			return ret
 		},
@@ -218,7 +259,7 @@
 					start = list.length
 					args.forEach(function(fn) {
 						if (toString.call(fn) === '[object Function]') {
-							if(!options.uniqe || !self.has(fn)){
+							if (!options.uniqe || !self.has(fn)) {
 								list.push(fn)
 							}
 						}
@@ -242,7 +283,7 @@
 				},
 				has: function(fn) {
 					return fn ? list.indexOf(fn) > -1 : !!(list && list.length)
-				}
+				},
 			}
 			return self
 		},
@@ -263,20 +304,26 @@
 						var funs = [].slice.call(arguments)
 						// console.log(func)
 						//
-            return jQuery.Deferred(function(newDeferred){
-              tuples.forEach(function(tuple, i){
-								var fn = jQuery.isFunction(funs[i]) && funs[i]
-								deferred[tuple[1]](function(){
-									var returnDeferred = fn && fn.apply(this, arguments)
-									if (returnDeferred && jQuery.isFunction(returnDeferred.promise)) {
-										returnDeferred.promise()
-										.done(newDeferred.resolve)
-										.fail(newDeferred.reject)
-										.progress(newDeferred.notify)   
-									}
+						return jQuery
+							.Deferred(function(newDeferred) {
+								tuples.forEach(function(tuple, i) {
+									var fn = jQuery.isFunction(funs[i]) && funs[i]
+									deferred[tuple[1]](function() {
+										var returnDeferred = fn && fn.apply(this, arguments)
+										if (
+											returnDeferred &&
+											jQuery.isFunction(returnDeferred.promise)
+										) {
+											returnDeferred
+												.promise()
+												.done(newDeferred.resolve)
+												.fail(newDeferred.reject)
+												.progress(newDeferred.notify)
+										}
+									})
 								})
 							})
-						}).promise()
+							.promise()
 					},
 					promise: function(obj) {
 						return obj != null ? jQuery.extend(obj, promise) : promise
@@ -392,6 +439,23 @@
 			var cache = this.cache[this.key(elem)] //1  {events:{},handle:function(){}}
 			//key 有值直接在缓存中取读
 			return key === undefined ? cache : cache[key]
+		},
+		set: function(elem, key, value) {
+			var prop
+			var unlock = this.key(elem)
+			var cache = this.cache[unlock]
+			if (typeof key === 'string') {
+				cache[key] = value
+			}
+			if (jQuery.isPlainObject(key)) {
+				for (prop in key) {
+					cache[prop] = key[prop]
+				}
+			}
+		},
+		access: function(onwer, key, value) {
+			this.set(onwer, key, value)
+			return value !== undefined ? value : key
 		},
 	}
 
@@ -671,7 +735,29 @@
 		},
 	}
 
+	var data_user = new Data()
 	jQuery.fn.extend({
+		data: function(key, value) {
+			var _this = this
+			return jQuery.access(
+				this,
+				function(value) {
+					console.log(value)
+					if (value === undefined) {
+						var data = data_user.get(this, key)
+						if (data !== undefined) {
+							return data
+						}
+					}
+					_this.each(function() {
+						data_user.set(this, key, value)
+					})
+				},
+				null,
+				value
+			)
+		},
+
 		each: function(callback, args) {
 			return jQuery.each(this, callback, args)
 		},
@@ -697,6 +783,98 @@
 		},
 	})
 
+	jQuery.extend({
+		queue: function(elem, type, data) {
+			var queue
+			if (elem) {
+				type = (type || 'fx') + 'queue'
+				queue = data_priv.get(elem, type)
+				if(data) {
+					if (!queue || jQuery.isArray(data)) {
+						queue = data_priv.access(elem, type, jQuery.markArray(data))
+					}else{
+						queue.push(data)
+					}
+				}
+			}
+			return queue || []
+		},
+		dequeue: function(elem, type){
+			type = type || 'fx'
+			var queue = jQuery.queue(elem, type)
+			var startLength = queue.length
+			var next = function(){
+				jQuery.dequeue(elem, type)
+			}
+			var hooks = jQuery._queueHooks(elem, type)
+			console.log(queue)
+			var fn = queue.shift()
+			if(fn === 'inprogress'){
+				fn = queue.shift()
+				startLength--
+			}
+			if(fn) {
+				if(type === 'fx'){
+					queue.unshift('inprogress')
+				}
+				fn.call(elem, next, hooks)
+			}
+			if(!startLength && hooks){
+				// hooks.empty.fire()  清理工作 + 数据收集
+			}
+		},
+		_queueHooks: function(){
+			return ''
+		},
+		access: function(elems, func, key, value){
+			var testing = key === null
+			var len = elems.length
+			var cache, chain, name
+			if(jQuery.isPlainObject(key)){
+				chain = true
+				for(name in key){
+					jQuery.access(elems, func, name, key[name])
+				}
+			}
+      if(value !== undefined){
+				chain = true
+         if(testing){
+					cache = func
+					func = function(key,value){
+						 cache.call(this, value)
+					}
+				 }
+				 for(var i=0; i<len; i++ ){
+					 func.call(elems[i], key, value)
+				 }
+			}
+			return chain ? elems : testing ? func.call(elems[0]) : func.call(elems[0], key, value)
+		},
+		content: function(elem, value){
+			var nodeType = elem.nodeType
+      if(nodeType === 1 || nodeType === 9 || nodeType === 11){
+        elem.textContent = value
+			}
+		},
+		text: function(elem){
+			var nodeType = elem.nodeType
+      if(nodeType === 1 || nodeType === 9 || nodeType === 11){
+        return elem.textContent
+			}
+		},
+		style: function(elem, key, value){
+			var nodeType = elem.nodeType
+			/*  if(nodeType === 1 || nodeType === 9 || nodeType === 11){
+        return elem.textContent
+			} */
+			if(!elem || nodeType === 3 || nodeType ===8 || !elem.style){
+				return
+			}
+			elem.style[key] = value
+     
+		}
+	})
+
 	function createOptions(options) {
 		var object = (optionsCache[options] = {})
 		options.split(/\s+/).forEach(function(value) {
@@ -704,6 +882,32 @@
 		})
 		return object
 	}
+
+	jQuery.fn.extend({
+		text: function(value){
+			return jQuery.access(this, function(value){
+				// console.log(value)
+			  return value === undefined ? jQuery.text(this) : jQuery.content(this, value)
+					
+			}, null, value)
+		},
+		css: function(key, value){
+			return jQuery.access(this, function(key, value){
+				// console.log(key, value)
+				var styles, len
+				var map ={}
+					if(jQuery.isArray(key)){ 
+						styles = window.getComputedStyle(this, null)
+            len = key.length
+						for(var i =0; i< len; i++){
+							map[key[i]] = styles.getPropertyValue(key[i]) || ''
+						}
+						return map
+					}
+					return value !== undefined ? jQuery.style(this, key, value) : window.getComputedStyle(this, null).getPropertyValue(key)
+			}, key, value)
+		}
+	})
 
 	root.$ = root.jQuery = jQuery
 })(this)
