@@ -781,6 +781,7 @@
 				jQuery.event.trigger(type, data, this)
 			})
 		},
+		
 	})
 
 	jQuery.extend({
@@ -906,6 +907,28 @@
 					}
 					return value !== undefined ? jQuery.style(this, key, value) : window.getComputedStyle(this, null).getPropertyValue(key)
 			}, key, value)
+		},
+		addClass: function(value){
+			var clazz, cur, j, claxx
+			var len = this.length
+			var i = 0
+			var process = typeof value === 'string' && value
+			if(process){
+				clazz = value.match(/\S+/g)
+				for(;i<len;i++){
+					elem = this[i]
+					cur = elem.nodeType === 1 && (ele.className ?(' ' + elem.className + ' '): ' ')
+					if(cur){
+						j = 0
+						while(claxx=(clazz[j++])){
+							if(cur.indexOf(' ' + claxx + ' ')<0){
+								cur += claxx + ' '
+							}
+						}
+					}
+					elem.className = cur.trim()
+				}
+			}
 		}
 	})
 
