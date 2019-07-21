@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>正则高级应用</title>
+</head>
+<body>
+  <script>
+    var setting = {
+      evalute: /<%([\s\S]+?)%>/,
+      escape: /<%-([\s\S]+?)%>/,
+      interpolate: /<%=([\s\S]+?)%>/
+    }
+    function template(text, rules) {
+      rules = extend({}, settings, rules)
+      var matcher = new RegExp([
+        rules.evalute.source,
+        rules.escape.source,
+        rules.interpolate.source
+      ].join('|'), 'g')
+      console.log(matcher)
+      text.replace(matcher, function(){
+        // 扫描变量 逃逸字符 js代码
+        // render 渲染器
+      })
+    }
+    var compiled = template('hello: <%= name %>', {
+      interpolate: /<%=([\s\S]+?)%>/g
+    })
+  </script>
+</body>
+</html>

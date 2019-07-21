@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>underscore源码分析</title>
+</head>
+<body>
+  <script src="js/underscore1.0.0.js"></script>
+  <script>
+    /* console.log(_.unique([1,2,3,4,5,4,5,6]))
+    console.log(_.unique([1,2,3,4,5,4,5,6, 'a', 'A'], function(val) {
+      return typeof val ==='string' ? val.toLocaleLowerCase() : val
+    })) */
+    console.log(_([1,2,3,4,5,4,5,6, 'a', 'A']).chain().unique().map().value())
+  </script>
+</body>
+</html>
