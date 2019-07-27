@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>underscore源码分析</title>
-</head>
-<body>
-  <script src="js/underscore1.0.0.js"></script>
-  <script>
-    /* console.log(_.unique([1,2,3,4,5,4,5,6]))
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>underscore源码分析</title>
+	</head>
+	<body>
+		<script src="js/underscore1.0.0.js"></script>
+		<script>
+			/* console.log(_.unique([1,2,3,4,5,4,5,6]))
     console.log(_.unique([1,2,3,4,5,4,5,6, 'a', 'A'], function(val) {
       return typeof val ==='string' ? val.toLocaleLowerCase() : val
     })) */
-   // console.log(_([1,2,3,4,5,4,5,6, 'a', 'A']).chain().unique().map().value())
+			// console.log(_([1,2,3,4,5,4,5,6, 'a', 'A']).chain().unique().map().value())
 
-   // test(1, 2, 3, 4)
-    function test(count, rest){
-      console.log(rest)
-    }
-    console.log(test.length)
-    var restTest = _.restArguments(test)
-    restTest(1, 2, 3, 4)
-  </script>
-</body>
+			// test(1, 2, 3, 4)
+			function test(count, rest) {
+				console.log(rest)
+			}
+			console.log(test.length)
+			var restTest = _.restArguments(test)
+			restTest(1, 2, 3, 4)
+
+			console.log(
+				_.reduce([1, 2, 3, 4, 5, 6], function(memo, value, index, obj) {
+					return memo + value //1+2
+				})
+			)
+
+			console.log(
+				_.filter([12, 50, 2, 4, 6, 13, 12], function(elem) {
+					return elem < 10
+				})
+			)
+		</script>
+	</body>
 </html>

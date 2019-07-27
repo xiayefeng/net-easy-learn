@@ -147,7 +147,11 @@
 			case 3:
 				return function(value, index, obj) {
 					return func.call(context, value, index, obj);
-				};
+        };
+      case 4:
+        return function(memo, value, index, obj){
+          return func.call(context, memo, value, index, obj)
+        }  
 		}
   }
 
@@ -182,6 +186,41 @@
     return result
   }
 
+   var createReduce = function (dir) {
+      var reduce = function(obj, iteratee, memo, init) {
+        var keys = !_.isArray(obj) && Object.keys(obj)
+        var length = (keys || obj).length
+        var index = dir > 0 ? 0 : length -1
+        if (!init) {
+           memo = obj[keys ? keys[index] : index]
+           index += dir
+           
+        }
+        for(; index >= 0 && index < length; index += dir){
+          var currentKey = keys ? keys[index] : index
+          memo = iteratee(memo, obj[currentKey], currentKey, obj)
+        }
+        return memo
+      }
+      return function (obj, iteratee, memo, context) {
+        var init = arguments.length >= 3
+        return reduce(obj, optimizeCb(iteratee, context, 4), memo, init)
+      }
+   }
+
+   _.reduce = createReduce(1)
+
+   _.filter = _.select = function(obj, predicate, context) {
+     var results = []
+     predicate = cb(predicate, context)
+     _.each(obj, function(value, index, list){
+       if(predicate(value, index, list)) {
+        results.push(value)
+       }
+     })
+     return results
+   }
+
   _.create = function(prototype, props) {
     var result = baseCreate(prototype)
     if(props) _.extendOwn(result, props)
@@ -197,7 +236,7 @@
 	}
 
   _.isFunction = function(fn){
-    return this.toString.call(fn) === '[object Function]'
+    return toString.call(fn) === '[object Function]'
   }
 
   _.isArray = function(arr){
