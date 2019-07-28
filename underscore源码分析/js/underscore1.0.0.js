@@ -51,6 +51,18 @@
 		return obj != null && hasOwnProperty.call(obj, path)
 	}
 
+	_.rest = function(array, n, guard) {
+		return slice.call(array, n == null ? 1 : n)
+	}
+
+	_.random = function (min, max) {
+		if(max == null){
+			max = min
+			min = 0
+		}
+		return min + Math.floor(Math.random() * (max - min + 1))
+	}
+
 	// Retrieve the names of an object's own properties.
 	// Delegates to **ECMAScript 5**'s native `Object.keys`.
 	_.keys = function(obj) {
@@ -333,6 +345,31 @@
 
 	_.isArray = function(arr) {
 		return toString.call(arr) === '[object Array]'
+	}
+
+	_.clone = function (obj) {
+		return _.isArray(obj) ? obj.slice() : _.extend({}, obj)
+	}
+
+	_.shuffle = function(array){
+		return _.sample(array, Infinity)
+	}
+
+	_.sample = function (array, n) {
+		if(n == null){
+			return array[_.random(array.length -1)]
+		}
+		var sample = _.clone(array)
+		var length = sample.length
+		var last =length -1
+		n = Math.max(Math.min(n, length), 0)
+		for(var index =0; index < n; index++){
+			var rand = _.random(index, last)
+			var temp = sample[index]
+			sample[index] = sample[rand]
+			sample[rand] = temp
+		}
+		return sample.slice(0, n)
 	}
 
 	_.each = function(target, callback) {
