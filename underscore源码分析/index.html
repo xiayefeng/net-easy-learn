@@ -40,6 +40,44 @@
 			console.log(_.sample([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5))
 			var shuffleArray = _.shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 			console.log(shuffleArray)
+
+			//深度展开
+			console.log(_.flatten([1, [2,3], [4,5, [6]]]))
+			// 浅度展开
+			console.log(_.flatten([1, [2,3], [4, [4]]], true))
+
+			console.log(_.initial([1,2,3,4,5]))
+			console.log(_.rest([1,2,3,4,5]))
+
+			console.log(_.unique([1,2,3,4,5,5,6,7,7,7,8,8,9], true))
+			
+			console.log(_.range(5))
+			console.log(_.range(1,11))
+			console.log(_.range(1,11,3))
+
+			// 偏函数
+			var add = function (a, b) {
+				return a + b
+			}
+
+			var BindAdd = add.bind(this, 5)
+			console.log(BindAdd(5))
+
+			var partialAdd = _.partial(add, 5)
+			console.log(partialAdd(10))
+
+			// cache函数
+			var hasher = function(){
+				var n = arguments[0]
+				return n + 'abc'
+			}
+
+			var fibonacci = _.memoize(function(n){
+				return n < 2 ? n : fibonacci(n-1) + fibonacci(n-2)
+			}, hasher)
+			console.log(fibonacci(10))
+			console.log(fibonacci.cache)
+
 		</script>
 	</body>
 </html>

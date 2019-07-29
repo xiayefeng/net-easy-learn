@@ -34,7 +34,7 @@
 		}
 		this._wrapped = obj
 	}
-	_.unique = function(arr, callbacks) {
+/* 	_.uniq = _.unique = function(arr, callback) {
 		var ret = []
 		var target,
 			i = 0
@@ -45,7 +45,36 @@
 			}
 		}
 		return ret
-	}
+	} */
+	_.uniq = _.unique = function(arr, isSorted, iteratee, context) {
+		if(!_.isBoolean(isSorted)) {
+			context = iteratee
+			iteratee = isSorted
+			isSorted = false
+		}
+		
+		if(iteratee != null){
+			iteratee = cb(iteratee, context)
+		}
+
+		var result = []
+
+		var seen, i=0
+
+		for (; i < arr.length; i++) {
+			// target = callbacks ? callbacks(arr[i]) : arr[i]
+			var computed = iteratee ? iteratee(arr[i], i, arr) : arr[i]
+			if (isSorted) {
+				if(!i || seen !== computed){
+					result.push(computed)
+				}
+				seen = computed
+			}else if(result.indexOf(computed) === -1){
+				result.push(computed)
+			}
+		}
+		return result
+	} 
 
 	var has = function(obj, path) {
 		return obj != null && hasOwnProperty.call(obj, path)
@@ -55,8 +84,8 @@
 		return slice.call(array, n == null ? 1 : n)
 	}
 
-	_.random = function (min, max) {
-		if(max == null){
+	_.random = function(min, max) {
+		if (max == null) {
 			max = min
 			min = 0
 		}
@@ -245,39 +274,40 @@
 		return results
 	}
 
-	  // Returns the first key on an object that passes a predicate test.
-		_.findKey = function(obj, predicate, context) {
-			predicate = cb(predicate, context);
-			var keys = _.keys(obj), key;
-			for (var i = 0, length = keys.length; i < length; i++) {
-				key = keys[i];
-				if (predicate(obj[key], key, obj)) return key;
-			}
-		};
-	
-	  // Return the first value which passes a truth test. Aliased as `detect`.
-		_.find = _.detect = function(obj, predicate, context) {
-			var keyFinder = isArrayLike(obj) ? _.findIndex : _.findKey;
-			var key = keyFinder(obj, predicate, context);
-			if (key !== void 0 && key !== -1) return obj[key];
-		};
-  
-  _.sortedIndex = function(array, obj, iteratee, context){
-    iteratee = cb(iteratee, context, 1)
-    var value = iteratee(obj)
-    var low =0,
-        high = array.length
+	// Returns the first key on an object that passes a predicate test.
+	_.findKey = function(obj, predicate, context) {
+		predicate = cb(predicate, context)
+		var keys = _.keys(obj),
+			key
+		for (var i = 0, length = keys.length; i < length; i++) {
+			key = keys[i]
+			if (predicate(obj[key], key, obj)) return key
+		}
+	}
 
-    while(low < high){
-      var mid = Math.floor((low + high) / 2)
-      if(iteratee(array[mid]) < value){
-        low = mid + 1
-       }else {
-        high = mid
-      }
-    }
-    return low    
-  }
+	// Return the first value which passes a truth test. Aliased as `detect`.
+	_.find = _.detect = function(obj, predicate, context) {
+		var keyFinder = isArrayLike(obj) ? _.findIndex : _.findKey
+		var key = keyFinder(obj, predicate, context)
+		if (key !== void 0 && key !== -1) return obj[key]
+	}
+
+	_.sortedIndex = function(array, obj, iteratee, context) {
+		iteratee = cb(iteratee, context, 1)
+		var value = iteratee(obj)
+		var low = 0,
+			high = array.length
+
+		while (low < high) {
+			var mid = Math.floor((low + high) / 2)
+			if (iteratee(array[mid]) < value) {
+				low = mid + 1
+			} else {
+				high = mid
+			}
+		}
+		return low
+	}
 
 	// Generator function to create the findIndex and findLastIndex functions.
 	var createPredicateIndexFinder = function(dir) {
@@ -299,14 +329,14 @@
 	var createIndexFinder = function(dir, predicateFind, sortedIndex) {
 		return function(array, item, idx) {
 			var i = 0,
-        length = getLength(array)
-      if(typeof idx == 'number'){
-        if (dir > 0) {
-          i = idx >= 0 ? idx : Math.max(idx + length, i)
-        } else {
-          length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
-        }
-      } else	if (sortedIndex && _.isBoolean(idx) && length) {
+				length = getLength(array)
+			if (typeof idx == 'number') {
+				if (dir > 0) {
+					i = idx >= 0 ? idx : Math.max(idx + length, i)
+				} else {
+					length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1
+				}
+			} else if (sortedIndex && _.isBoolean(idx) && length) {
 				idx = sortedIndex(array, item)
 				return array[idx] === item ? idx : -1
 			}
@@ -314,11 +344,15 @@
 			if (item !== item) {
 				idx = predicateFind(slice.call(array, i, length), _.isNaN)
 				return idx >= 0 ? idx + i : -1
-      }
-      for(idx = dir > 0 ? i : length -1; idx >= 0 && idx < length; idx += dir){
-        if(array[idx] === item) return idx
-      }
-      return -1
+			}
+			for (
+				idx = dir > 0 ? i : length - 1;
+				idx >= 0 && idx < length;
+				idx += dir
+			) {
+				if (array[idx] === item) return idx
+			}
+			return -1
 		}
 	}
 
@@ -329,7 +363,7 @@
 		var result = baseCreate(prototype)
 		if (props) _.extendOwn(result, props)
 		return result
-  }
+	}
 
 	_.isObject = function(obj) {
 		return obj != null && this.toString.call(obj) === '[object Object]'
@@ -346,30 +380,140 @@
 	_.isArray = function(arr) {
 		return toString.call(arr) === '[object Array]'
 	}
+	  // Is the given value `NaN`?
+		_.isNaN = function(obj) {
+			return _.isNumber(obj) && isNaN(obj);
+		};
 
-	_.clone = function (obj) {
+	  // Is a given variable undefined?
+		_.isUndefined = function(obj) {
+			return obj === void 0;
+		};
+
+	  // Shortcut function for checking if an object has a given property directly
+  // on itself (in other words, not on a prototype).
+  _.has = function(obj, path) {
+    if (!_.isArray(path)) {
+      return has(obj, path);
+    }
+    var length = path.length;
+    for (var i = 0; i < length; i++) {
+      var key = path[i];
+      if (obj == null || !hasOwnProperty.call(obj, key)) {
+        return false;
+      }
+      obj = obj[key];
+    }
+    return !!length;
+  };
+
+	_.clone = function(obj) {
 		return _.isArray(obj) ? obj.slice() : _.extend({}, obj)
 	}
 
-	_.shuffle = function(array){
+	_.shuffle = function(array) {
 		return _.sample(array, Infinity)
 	}
 
-	_.sample = function (array, n) {
-		if(n == null){
-			return array[_.random(array.length -1)]
+	_.sample = function(array, n) {
+		if (n == null) {
+			return array[_.random(array.length - 1)]
 		}
 		var sample = _.clone(array)
 		var length = sample.length
-		var last =length -1
+		var last = length - 1
 		n = Math.max(Math.min(n, length), 0)
-		for(var index =0; index < n; index++){
+		for (var index = 0; index < n; index++) {
 			var rand = _.random(index, last)
 			var temp = sample[index]
 			sample[index] = sample[rand]
 			sample[rand] = temp
 		}
 		return sample.slice(0, n)
+	}
+
+	var flatten = function(array, shallow, strict, output) {
+		 output = output || []
+		var idx = output.length
+		for (var i = 0; i < array.length; i++) {
+			var value = array[i]
+			if (_.isArray(value) || _.isArguments(value)) {
+				if (!shallow) {
+					flatten(value, shallow, strict, output)
+          idx = output.length
+				} else {
+					var j = 0,
+						len = value.length
+					// ret.length += len
+					while (j < len) {
+						output[idx++] = value[j++]
+					}
+				}
+			} else if(!strict){
+				output[idx++] = value
+			}
+		}
+		return output
+	}
+
+	_.flatten = function(array, shallow) {
+		return flatten(array, shallow, false)
+	}
+
+	_.initial = function(array, n) {
+		return slice.call(array, 0, Math.max(0, array.length - (n == null ? 1 : n)))
+	}
+
+	_.compact = function(array) {
+		return _.filter(array, Boolean)
+	}
+
+	_.range = function(start, stop, step){
+		if(stop == null) {
+			stop = start || 0
+			start = 0
+		}
+
+		step = step || 1
+		var length = Math.max(Math.ceil((stop - start) / step), 0)
+
+		var range = Array(length)
+		for(var index = 0; index < length; index++, start+= step){
+			range[index] = start
+		}
+		return range
+	}
+
+	_.partial = function (func) {
+		var args = slice.call(arguments, 1)
+		var bound = function(){
+			var index = 0
+			var length = args.length
+			var ret = Array(length)
+			for(var i = 0 ; i < length; i++){
+        ret[i] = args[i]
+			}
+			while(index < arguments.length){
+				ret.push(arguments[index++])
+			}
+			return func.apply(this, ret)
+		}
+		return bound
+	}
+
+	_.memoize = function (func, hasher){
+    var memoize = function(key){
+			var cache = memoize.cache
+
+			var address = '' + (hasher ? hasher.apply(this, arguments) : key)
+
+			if(!_.has(cache, address)){
+				cache[address] = func.apply(this, arguments)
+			}
+			return cache[address]
+		}
+		memoize.cache = {}
+		return memoize
 	}
 
 	_.each = function(target, callback) {
@@ -413,11 +557,6 @@
 		return !_.isSymbol(obj) && isFinite(obj) && !isNaN(parseFloat(obj))
 	}
 
-	// Is the given value `NaN`?
-	_.isNaN = function(obj) {
-		return _.isNumber(obj) && isNaN(obj)
-	}
-
 	// Is a given value a boolean?
 	_.isBoolean = function(obj) {
 		return (
@@ -428,11 +567,6 @@
 	// Is a given value equal to null?
 	_.isNull = function(obj) {
 		return obj === null
-	}
-
-	// Is a given variable undefined?
-	_.isUndefined = function(obj) {
-		return obj === void 0
 	}
 
 	_.mixin = function(obj) {
