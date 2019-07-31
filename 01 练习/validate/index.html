@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="./css/validate.css">
+  <title>表单验证</title>
+</head>
+<body>
+  <form class="validate-form" data-validate-label-width="80" onsubmit="return false">
+    <div class="form-item">
+      <label ><span class="validate-label"><span class="require-star">*</span>邮箱：</span>
+        <input type="text"
+          data-validate="true"
+          data-v-email="true"
+          data-v-require="true"
+          data-v-email-error='邮箱格式不正确'
+          data-v-require-error="邮箱不能为空"
+        >
+      </label>
+      
+      <div class="error-box"><span class="validate-label"></span><span class="error-msg"></span></div>
+    </div>
+    <div class="form-item">
+      <label ><span class="validate-label"><span class="require-star">*</span>手机号：</span>
+        <input type="tel"
+          data-validate="true"
+          data-v-reg="^1[356789]\d{9}$"
+          data-v-reg-error='手机号格式不正确'
+        >
+      </label>
+      <div class="error-box"><span class="validate-label"></span><span class="error-msg"></span></div>
+    </div>
+    <div class="form-item">
+      <label ><span class="validate-label"><span class="require-star">*</span>件数：</span>
+        <input type="tel"
+          data-validate="true"
+          data-v-min="5"
+          data-v-min-error="数量不能小于5"
+          data-v-max="100"
+          data-v-max-error="数量不能大于100"
+        >
+      </label>
+      <div class="error-box"><span class="validate-label"></span><span class="error-msg"></span></div>
+    </div>
+  </form>
+  <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+  <script src="./js/jquery-validate.js"></script>
+  <script>
+    $('form').validate({
+      defaultEvent: 'change'
+    })
+  </script>
+</body>
+</html>
