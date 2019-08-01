@@ -366,7 +366,7 @@
 	}
 
 	_.isObject = function(obj) {
-		return obj != null && this.toString.call(obj) === '[object Object]'
+		return obj != null && toString.call(obj) === '[object Object]'
 	}
 	//默认迭代器
 	_.identity = function(value) {
@@ -432,7 +432,7 @@
 		return sample.slice(0, n)
 	}
 
-	var flatten = function(array, shallow, strict, output) {
+/* 	var flatten = function(array, shallow, strict, output) {
 		 output = output || []
 		var idx = output.length
 		for (var i = 0; i < array.length; i++) {
@@ -454,6 +454,31 @@
 			}
 		}
 		return output
+	} */
+	//摊平数组
+	var flatten = function(array, shallow) {
+		var ret = [];
+		var index = 0;
+		for (var i = 0; i < array.length; i++) {
+			var value = array[i]; //展开一次
+			if (_.isArray(value) || _.isArguments(value)) {
+				//递归全部展开
+				if (!shallow) {
+					value = flatten(value, shallow);
+				}
+				var j = 0,
+					len = value.length;
+                    
+				ret.length += len;
+                
+				while (j < len) {
+					ret[index++] = value[j++];
+				}
+			} else {
+				ret[index++] = value;
+			}
+		}
+		return ret;
 	}
 
 	_.flatten = function(array, shallow) {
@@ -499,6 +524,52 @@
 			return func.apply(this, ret)
 		}
 		return bound
+	}
+
+	_.delay = function(func, wait) {
+		var args = slice.call(arguments, 2)
+		return setTimeout(function(){
+			func.apply(null, args)
+		}, wait)
+	}
+
+	 // Invert the keys and values of an object. The values must be serializable.
+	 _.invert = function(obj) {
+    var result = {};
+    var keys = _.keys(obj);
+    for (var i = 0, length = keys.length; i < length; i++) {
+      result[obj[keys[i]]] = keys[i];
+    }
+    return result;
+  };
+
+	// 字符串的逃逸
+	var escapeMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '`': '&#x60;'
+	};
+	
+	var unescapeMap = _.invert(escapeMap);
+
+	var createEscaper = function(map){
+	 var sourece = '(?:'+Object.keys(map).join('|')+')'
+	 var reg = new RegExp(sourece, 'g')
+	 var replace = function(match){
+     return map[match]
+	 }
+		return function (str){
+       return reg.test(str) ? str.replace(reg, replace) : str
+		}
+	}
+	_.escape = createEscaper(escapeMap)
+	_.unescape = createEscaper(unescapeMap)
+
+	_.compose = function (){
+
 	}
 
 	_.memoize = function (func, hasher){
