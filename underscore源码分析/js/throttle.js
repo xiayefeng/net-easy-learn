@@ -21,6 +21,7 @@ _.throttle = function(func, wait, options){
        lastTime = now
     }
     var remaining = wait - (now - lastTime)
+    console.log(remaining)
     if(remaining <= 0){
       if(timeOut){
         clearTimeout(timeOut)
@@ -28,7 +29,7 @@ _.throttle = function(func, wait, options){
       }
       lastTime = now
       result = func.apply(null, args)
-    }else if(!timeOut && options.trailing !== false) {
+    } else if (!timeOut && options.trailing !== false) {
       timeOut = setTimeout(later, remaining)
     }
     return result

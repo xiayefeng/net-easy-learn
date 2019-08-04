@@ -5,6 +5,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<title>underscore源码分析</title>
+		<style>
+		  body{
+        height: 3000px;
+		  }
+		</style>
 	</head>
 	<body>
 		<script src="js/underscore1.0.0.js"></script>
@@ -107,7 +112,11 @@
 				// leading: false // 阻止立即调用 1500毫秒后执行一次
 				trailing: false // 立即调用，不用等待
 			})
-			window.onscroll = throttle
+			// window.onscroll = throttle
+			var debounce = _.debounce(function(){
+        console.log('hello debounce')
+      }, 1500)
+      window.onscroll = debounce
 		</script>
 	</body>
 </html>

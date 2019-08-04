@@ -596,6 +596,74 @@
 		return memoize
 	}
 
+	_.now = Date.now || function(){
+		return new Date().getTime()
+	}
+
+	_.throttle = function(func, wait, options){
+		var lastTime = 0
+		var timeOut = null
+		var args, result
+		if(!options){
+			options = {}
+		}
+		var later = function(){
+			lastTime = options.leading === false ? 0 : _.now()
+			timeOut = null
+			func.apply(null, args)
+		}
+		return function(){   // 节流函数
+			// 首次执行节流函数的时间
+			var now = _.now()
+			agrs = arguments
+			if(!lastTime && options.leading === false){
+				 lastTime = now
+			}
+			var remaining = wait - (now - lastTime)
+			if(remaining <= 0){
+				if(timeOut){
+					clearTimeout(timeOut)
+					timeOut = null
+				}
+				lastTime = now
+				result = func.apply(null, args)
+			} else if (!timeOut && options.trailing !== false) {
+				timeOut = setTimeout(later, remaining)
+			}
+			return result
+		}
+	}
+
+	_.debounce = function(func, wait, immediate){
+		var lastTime,timeOut,args, result
+	
+		var later = function(){
+			var last = _.now() - lastTime
+			if(last < wait){
+				timeOut = setTimeout(later, wait - last)
+			}else{
+				timeOut = null
+				if(!immediate){
+					result = func.apply(null, args)
+				}
+			}
+		}
+	
+		return function(){ // 防抖函数
+			args = arguments
+			lastTime = _.now()
+			// 立即调用满足两个条件
+			var callNow = immediate && !timeOut
+			if(!timeOut){
+				timeOut = setTimeout(later, wait)
+			}
+			if(callNow) {
+				result = func.apply(null, args)
+			}
+			return result
+		}
+	}
+
 	_.each = function(target, callback) {
 		var key,
 			i = 0
