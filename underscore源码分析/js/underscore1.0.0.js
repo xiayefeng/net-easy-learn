@@ -569,7 +569,16 @@
 	_.unescape = createEscaper(unescapeMap)
 
 	_.compose = function (){
-
+		var args = arguments
+		var end = args.length - 1
+		return function(){
+			var i = end
+			var result = args[i].apply(null, arguments)
+      while(i--){
+				result = args[i].call(null, result)
+			}
+			return result
+		}
 	}
 
 	_.memoize = function (func, hasher){
