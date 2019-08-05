@@ -34,7 +34,7 @@
 		}
 		this._wrapped = obj
 	}
-/* 	_.uniq = _.unique = function(arr, callback) {
+	/* 	_.uniq = _.unique = function(arr, callback) {
 		var ret = []
 		var target,
 			i = 0
@@ -47,37 +47,65 @@
 		return ret
 	} */
 	_.uniq = _.unique = function(arr, isSorted, iteratee, context) {
-		if(!_.isBoolean(isSorted)) {
+		if (!_.isBoolean(isSorted)) {
 			context = iteratee
 			iteratee = isSorted
 			isSorted = false
 		}
-		
-		if(iteratee != null){
+
+		if (iteratee != null) {
 			iteratee = cb(iteratee, context)
 		}
 
 		var result = []
 
-		var seen, i=0
+		var seen,
+			i = 0
 
 		for (; i < arr.length; i++) {
 			// target = callbacks ? callbacks(arr[i]) : arr[i]
 			var computed = iteratee ? iteratee(arr[i], i, arr) : arr[i]
 			if (isSorted) {
-				if(!i || seen !== computed){
+				if (!i || seen !== computed) {
 					result.push(computed)
 				}
 				seen = computed
-			}else if(result.indexOf(computed) === -1){
+			} else if (result.indexOf(computed) === -1) {
 				result.push(computed)
 			}
 		}
 		return result
-	} 
+	}
 
 	var has = function(obj, path) {
 		return obj != null && hasOwnProperty.call(obj, path)
+	}
+
+	// Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
+	var hasEnumBug = !{ toString: null }.propertyIsEnumerable('toString')
+	var nonEnumerableProps = [
+		'valueOf',
+		'isPrototypeOf',
+		'toString',
+		'propertyIsEnumerable',
+		'hasOwnProperty',
+		'toLocaleString',
+	]
+	var collectNonEnumProps = function(obj, keys) {
+		var nonEnumIdx = nonEnumerableProps.length
+		var constructor = obj.constructor
+		var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto
+
+		// Constructor is a special case.
+		var prop = 'constructor'
+		if (has(obj, prop) && !_.contains(keys, prop)) keys.push(prop)
+
+		while (nonEnumIdx--) {
+			prop = nonEnumerableProps[nonEnumIdx]
+			if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
+				keys.push(prop)
+			}
+		}
 	}
 
 	_.rest = function(array, n, guard) {
@@ -100,7 +128,7 @@
 		var keys = []
 		for (var key in obj) if (has(obj, key)) keys.push(key)
 		// Ahem, IE < 9.
-		// if (hasEnumBug) collectNonEnumProps(obj, keys);
+		if (hasEnumBug) collectNonEnumProps(obj, keys);
 		return keys
 	}
 
@@ -110,9 +138,17 @@
 		var keys = []
 		for (var key in obj) keys.push(key)
 		// Ahem, IE < 9.
-		// if (hasEnumBug) collectNonEnumProps(obj, keys);
+		if (hasEnumBug) collectNonEnumProps(obj, keys);
 		return keys
 	}
+
+	  // Determine if the array or object contains a given item (using `===`).
+  // Aliased as `includes` and `include`.
+  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+    if (!isArrayLike(obj)) obj = _.values(obj);
+    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
+    return _.indexOf(obj, item, fromIndex) >= 0;
+  };
 
 	// An internal function for creating assigner functions.
 	var createAssigner = function(keysFunc, defaults) {
@@ -380,32 +416,32 @@
 	_.isArray = function(arr) {
 		return toString.call(arr) === '[object Array]'
 	}
-	  // Is the given value `NaN`?
-		_.isNaN = function(obj) {
-			return _.isNumber(obj) && isNaN(obj);
-		};
+	// Is the given value `NaN`?
+	_.isNaN = function(obj) {
+		return _.isNumber(obj) && isNaN(obj)
+	}
 
-	  // Is a given variable undefined?
-		_.isUndefined = function(obj) {
-			return obj === void 0;
-		};
+	// Is a given variable undefined?
+	_.isUndefined = function(obj) {
+		return obj === void 0
+	}
 
-	  // Shortcut function for checking if an object has a given property directly
-  // on itself (in other words, not on a prototype).
-  _.has = function(obj, path) {
-    if (!_.isArray(path)) {
-      return has(obj, path);
-    }
-    var length = path.length;
-    for (var i = 0; i < length; i++) {
-      var key = path[i];
-      if (obj == null || !hasOwnProperty.call(obj, key)) {
-        return false;
-      }
-      obj = obj[key];
-    }
-    return !!length;
-  };
+	// Shortcut function for checking if an object has a given property directly
+	// on itself (in other words, not on a prototype).
+	_.has = function(obj, path) {
+		if (!_.isArray(path)) {
+			return has(obj, path)
+		}
+		var length = path.length
+		for (var i = 0; i < length; i++) {
+			var key = path[i]
+			if (obj == null || !hasOwnProperty.call(obj, key)) {
+				return false
+			}
+			obj = obj[key]
+		}
+		return !!length
+	}
 
 	_.clone = function(obj) {
 		return _.isArray(obj) ? obj.slice() : _.extend({}, obj)
@@ -432,7 +468,7 @@
 		return sample.slice(0, n)
 	}
 
-/* 	var flatten = function(array, shallow, strict, output) {
+	/* 	var flatten = function(array, shallow, strict, output) {
 		 output = output || []
 		var idx = output.length
 		for (var i = 0; i < array.length; i++) {
@@ -457,28 +493,28 @@
 	} */
 	//摊平数组
 	var flatten = function(array, shallow) {
-		var ret = [];
-		var index = 0;
+		var ret = []
+		var index = 0
 		for (var i = 0; i < array.length; i++) {
-			var value = array[i]; //展开一次
+			var value = array[i] //展开一次
 			if (_.isArray(value) || _.isArguments(value)) {
 				//递归全部展开
 				if (!shallow) {
-					value = flatten(value, shallow);
+					value = flatten(value, shallow)
 				}
 				var j = 0,
-					len = value.length;
-                    
-				ret.length += len;
-                
+					len = value.length
+
+				ret.length += len
+
 				while (j < len) {
-					ret[index++] = value[j++];
+					ret[index++] = value[j++]
 				}
 			} else {
-				ret[index++] = value;
+				ret[index++] = value
 			}
 		}
-		return ret;
+		return ret
 	}
 
 	_.flatten = function(array, shallow) {
@@ -493,8 +529,8 @@
 		return _.filter(array, Boolean)
 	}
 
-	_.range = function(start, stop, step){
-		if(stop == null) {
+	_.range = function(start, stop, step) {
+		if (stop == null) {
 			stop = start || 0
 			start = 0
 		}
@@ -503,22 +539,22 @@
 		var length = Math.max(Math.ceil((stop - start) / step), 0)
 
 		var range = Array(length)
-		for(var index = 0; index < length; index++, start+= step){
+		for (var index = 0; index < length; index++, start += step) {
 			range[index] = start
 		}
 		return range
 	}
 
-	_.partial = function (func) {
+	_.partial = function(func) {
 		var args = slice.call(arguments, 1)
-		var bound = function(){
+		var bound = function() {
 			var index = 0
 			var length = args.length
 			var ret = Array(length)
-			for(var i = 0 ; i < length; i++){
-        ret[i] = args[i]
+			for (var i = 0; i < length; i++) {
+				ret[i] = args[i]
 			}
-			while(index < arguments.length){
+			while (index < arguments.length) {
 				ret.push(arguments[index++])
 			}
 			return func.apply(this, ret)
@@ -528,66 +564,66 @@
 
 	_.delay = function(func, wait) {
 		var args = slice.call(arguments, 2)
-		return setTimeout(function(){
+		return setTimeout(function() {
 			func.apply(null, args)
 		}, wait)
 	}
 
-	 // Invert the keys and values of an object. The values must be serializable.
-	 _.invert = function(obj) {
-    var result = {};
-    var keys = _.keys(obj);
-    for (var i = 0, length = keys.length; i < length; i++) {
-      result[obj[keys[i]]] = keys[i];
-    }
-    return result;
-  };
+	// Invert the keys and values of an object. The values must be serializable.
+	_.invert = function(obj) {
+		var result = {}
+		var keys = _.keys(obj)
+		for (var i = 0, length = keys.length; i < length; i++) {
+			result[obj[keys[i]]] = keys[i]
+		}
+		return result
+	}
 
 	// 字符串的逃逸
 	var escapeMap = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#x27;',
-    '`': '&#x60;'
-	};
-	
-	var unescapeMap = _.invert(escapeMap);
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#x27;',
+		'`': '&#x60;',
+	}
 
-	var createEscaper = function(map){
-	 var sourece = '(?:'+Object.keys(map).join('|')+')'
-	 var reg = new RegExp(sourece, 'g')
-	 var replace = function(match){
-     return map[match]
-	 }
-		return function (str){
-       return reg.test(str) ? str.replace(reg, replace) : str
+	var unescapeMap = _.invert(escapeMap)
+
+	var createEscaper = function(map) {
+		var sourece = '(?:' + Object.keys(map).join('|') + ')'
+		var reg = new RegExp(sourece, 'g')
+		var replace = function(match) {
+			return map[match]
+		}
+		return function(str) {
+			return reg.test(str) ? str.replace(reg, replace) : str
 		}
 	}
 	_.escape = createEscaper(escapeMap)
 	_.unescape = createEscaper(unescapeMap)
 
-	_.compose = function (){
+	_.compose = function() {
 		var args = arguments
 		var end = args.length - 1
-		return function(){
+		return function() {
 			var i = end
 			var result = args[i].apply(null, arguments)
-      while(i--){
+			while (i--) {
 				result = args[i].call(null, result)
 			}
 			return result
 		}
 	}
 
-	_.memoize = function (func, hasher){
-    var memoize = function(key){
+	_.memoize = function(func, hasher) {
+		var memoize = function(key) {
 			var cache = memoize.cache
 
 			var address = '' + (hasher ? hasher.apply(this, arguments) : key)
 
-			if(!_.has(cache, address)){
+			if (!_.has(cache, address)) {
 				cache[address] = func.apply(this, arguments)
 			}
 			return cache[address]
@@ -596,32 +632,35 @@
 		return memoize
 	}
 
-	_.now = Date.now || function(){
-		return new Date().getTime()
-	}
+	_.now =
+		Date.now ||
+		function() {
+			return new Date().getTime()
+		}
 
-	_.throttle = function(func, wait, options){
+	_.throttle = function(func, wait, options) {
 		var lastTime = 0
 		var timeOut = null
 		var args, result
-		if(!options){
+		if (!options) {
 			options = {}
 		}
-		var later = function(){
+		var later = function() {
 			lastTime = options.leading === false ? 0 : _.now()
 			timeOut = null
 			func.apply(null, args)
 		}
-		return function(){   // 节流函数
+		return function() {
+			// 节流函数
 			// 首次执行节流函数的时间
 			var now = _.now()
 			agrs = arguments
-			if(!lastTime && options.leading === false){
-				 lastTime = now
+			if (!lastTime && options.leading === false) {
+				lastTime = now
 			}
 			var remaining = wait - (now - lastTime)
-			if(remaining <= 0){
-				if(timeOut){
+			if (remaining <= 0) {
+				if (timeOut) {
 					clearTimeout(timeOut)
 					timeOut = null
 				}
@@ -634,30 +673,31 @@
 		}
 	}
 
-	_.debounce = function(func, wait, immediate){
-		var lastTime,timeOut,args, result
-	
-		var later = function(){
+	_.debounce = function(func, wait, immediate) {
+		var lastTime, timeOut, args, result
+
+		var later = function() {
 			var last = _.now() - lastTime
-			if(last < wait){
+			if (last < wait) {
 				timeOut = setTimeout(later, wait - last)
-			}else{
+			} else {
 				timeOut = null
-				if(!immediate){
+				if (!immediate) {
 					result = func.apply(null, args)
 				}
 			}
 		}
-	
-		return function(){ // 防抖函数
+
+		return function() {
+			// 防抖函数
 			args = arguments
 			lastTime = _.now()
 			// 立即调用满足两个条件
 			var callNow = immediate && !timeOut
-			if(!timeOut){
+			if (!timeOut) {
 				timeOut = setTimeout(later, wait)
 			}
-			if(callNow) {
+			if (callNow) {
 				result = func.apply(null, args)
 			}
 			return result
