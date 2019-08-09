@@ -128,7 +128,7 @@
 		var keys = []
 		for (var key in obj) if (has(obj, key)) keys.push(key)
 		// Ahem, IE < 9.
-		if (hasEnumBug) collectNonEnumProps(obj, keys);
+		if (hasEnumBug) collectNonEnumProps(obj, keys)
 		return keys
 	}
 
@@ -138,17 +138,17 @@
 		var keys = []
 		for (var key in obj) keys.push(key)
 		// Ahem, IE < 9.
-		if (hasEnumBug) collectNonEnumProps(obj, keys);
+		if (hasEnumBug) collectNonEnumProps(obj, keys)
 		return keys
 	}
 
-	  // Determine if the array or object contains a given item (using `===`).
-  // Aliased as `includes` and `include`.
-  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
-    if (!isArrayLike(obj)) obj = _.values(obj);
-    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
-    return _.indexOf(obj, item, fromIndex) >= 0;
-  };
+	// Determine if the array or object contains a given item (using `===`).
+	// Aliased as `includes` and `include`.
+	_.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+		if (!isArrayLike(obj)) obj = _.values(obj)
+		if (typeof fromIndex != 'number' || guard) fromIndex = 0
+		return _.indexOf(obj, item, fromIndex) >= 0
+	}
 
 	// An internal function for creating assigner functions.
 	var createAssigner = function(keysFunc, defaults) {
@@ -444,7 +444,25 @@
 	}
 
 	_.clone = function(obj) {
+		if (!_.isObject(obj)) return obj
 		return _.isArray(obj) ? obj.slice() : _.extend({}, obj)
+	}
+
+	_.deepClone = function(obj) {
+		if (_.isArray(obj)) {
+			_.map(obj, function(item, idx, arr) {
+				return _.isArray(item) || _.isObject(item) ? _.deepClone(item) : item
+			})
+		} else if (_.isObject(obj)) {
+			return _.reduce(
+				obj,
+				function(memo, value, key) {
+					memo[key] =
+						_.isObject(value) || _.deepClone(value) ? _.deepClone(value) : value
+				},
+				{}
+			)
+		}
 	}
 
 	_.shuffle = function(array) {
