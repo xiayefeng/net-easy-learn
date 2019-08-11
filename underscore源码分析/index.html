@@ -6,9 +6,12 @@
 		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 		<title>underscore源码分析</title>
 		<style>
-		  body{
-        height: 3000px;
-		  }
+			body {
+				height: 3000px;
+			}
+			.last-item {
+				color: red;
+			}
 		</style>
 	</head>
 	<body>
@@ -39,29 +42,29 @@
 					return elem < 10
 				})
 			)
-			console.log(_.indexOf([1,2,3,4,5,6], 3, true))
-			console.log(_.lastIndexOf([1,2,3,4,5,6], 3, true))
+			console.log(_.indexOf([1, 2, 3, 4, 5, 6], 3, true))
+			console.log(_.lastIndexOf([1, 2, 3, 4, 5, 6], 3, true))
 
 			console.log(_.sample([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 5))
 			var shuffleArray = _.shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
 			console.log(shuffleArray)
 
 			//深度展开
-			console.log(_.flatten([1, [2,3], [4,5, [6]]]))
+			console.log(_.flatten([1, [2, 3], [4, 5, [6]]]))
 			// 浅度展开
-			console.log(_.flatten([1, [2,3], [4, [4]]], true))
+			console.log(_.flatten([1, [2, 3], [4, [4]]], true))
 
-			console.log(_.initial([1,2,3,4,5]))
-			console.log(_.rest([1,2,3,4,5]))
+			console.log(_.initial([1, 2, 3, 4, 5]))
+			console.log(_.rest([1, 2, 3, 4, 5]))
 
-			console.log(_.unique([1,2,3,4,5,5,6,7,7,7,8,8,9], true))
-			
+			console.log(_.unique([1, 2, 3, 4, 5, 5, 6, 7, 7, 7, 8, 8, 9], true))
+
 			console.log(_.range(5))
-			console.log(_.range(1,11))
-			console.log(_.range(1,11,3))
+			console.log(_.range(1, 11))
+			console.log(_.range(1, 11, 3))
 
 			// 偏函数
-			var add = function (a, b) {
+			var add = function(a, b) {
 				return a + b
 			}
 
@@ -72,51 +75,74 @@
 			console.log(partialAdd(10))
 
 			// cache函数
-			var hasher = function(){
+			var hasher = function() {
 				var n = arguments[0]
 				return n + 'abc'
 			}
 
-			var fibonacci = _.memoize(function(n){
-				return n < 2 ? n : fibonacci(n-1) + fibonacci(n-2)
+			var fibonacci = _.memoize(function(n) {
+				return n < 2 ? n : fibonacci(n - 1) + fibonacci(n - 2)
 			}, hasher)
 			console.log(fibonacci(100))
 			console.log(fibonacci.cache)
 
-			_.delay(function(name, age){
-				console.log(name, age)
-			}, 1500, 'max', 30)
+			_.delay(
+				function(name, age) {
+					console.log(name, age)
+				},
+				1500,
+				'max',
+				30
+			)
 
-
-			function A(data){
+			function A(data) {
 				console.log('A')
 				return data * 2
 			}
-			function B(data){
+			function B(data) {
 				console.log('B')
 				return data + 2
 			}
-			function C(data){
+			function C(data) {
 				console.log('C')
 				return data - 2
 			}
 			// 函数组合
-			var ret = _.compose(A, B, C) // 依次调用 上一次执行函数    返回值传给下一个要执行的函数
+			var ret = _.compose(
+				A,
+				B,
+				C
+			) // 依次调用 上一次执行函数    返回值传给下一个要执行的函数
 			console.log(ret(4))
-			
+
 			// 节流防抖
 			// 没有配置时执行两次， 立即执行一次， 间隔 1500毫秒后再执行一次
-			var throttle = _.throttle(function(){
-				console.log('hello throttle')
-			}, 1500, {
-				// leading: false // 阻止立即调用 1500毫秒后执行一次
-				trailing: false // 立即调用，不用等待
-			})
+			var throttle = _.throttle(
+				function() {
+					console.log('hello throttle')
+				},
+				1500,
+				{
+					// leading: false // 阻止立即调用 1500毫秒后执行一次
+					trailing: false, // 立即调用，不用等待
+				}
+			)
 			// window.onscroll = throttle
-			var debounce = _.debounce(function(){
-        console.log('hello debounce')
-      }, 1500)
-      window.onscroll = debounce
+			var debounce = _.debounce(function() {
+				console.log('hello debounce')
+			}, 1500)
+			window.onscroll = debounce
+
+			_.pick(
+				{
+					name: 'max',
+					age: 30,
+					userid: 'wzy',
+				},
+				function(value, key, object) {
+					return _.isNumber(value)
+				}
+			)
 		</script>
 	</body>
 </html>

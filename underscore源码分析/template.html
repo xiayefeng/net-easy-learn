@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>字符串模板</title>
+  <style>
+		.last-item{
+			color:red;
+		}
+	</style>
+</head>
+<body>
+  <div id="box"></div>
+  <div id="box2"></div>
+  <script src="./js/underscore1.0.0.js"></script>
+  <script type="text/template" id="tpl">
+    <ul class="list">
+       <%obj.forEach(function(e, i, a){%>
+         <% if(i === a.length -1){%>
+           <li class="last-item"><%=e.name%></li>
+         <%}else{%>
+            <li><%=e.name%></li>
+         <%}%>
+       <%})%>
+    </ul>
+  </script>
+  <script>
+    var data = [{
+      name: 'max'
+    },
+    {
+      name: 'remi'
+    },
+    {
+      name: 'long'
+    }
+  ]
+  var templateString = document.getElementById('tpl').innerHTML
+  var compliled = _.template(templateString)
+  var renderString = compliled(data)
+  var complied = _.template('hello max <%-img%>')
+  document.querySelector('div').innerHTML = renderString
+  document.getElementById('box2').innerHTML = complied({img: '<img src="a.jpg">'})
+  </script>
+</body>
+</html>

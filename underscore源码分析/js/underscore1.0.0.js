@@ -450,7 +450,7 @@
 
 	_.deepClone = function(obj) {
 		if (_.isArray(obj)) {
-			_.map(obj, function(item, idx, arr) {
+		  return	_.map(obj, function(item, idx, arr) {
 				return _.isArray(item) || _.isObject(item) ? _.deepClone(item) : item
 			})
 		} else if (_.isObject(obj)) {
@@ -459,11 +459,139 @@
 				function(memo, value, key) {
 					memo[key] =
 						_.isObject(value) || _.deepClone(value) ? _.deepClone(value) : value
+					return memo
 				},
 				{}
 			)
+		} else {
+       return obj
 		}
 	}
+
+	_.pick = function(object, oiteratee, context){
+		var result = {}
+		var iteratee
+		var keys
+    if(object == null){
+			return result
+		}
+    if(_.isFunction(oiteratee)){
+			keys = _.keys(object)
+      iteratee = optimizeCb(oiteratee, context)
+		} else {
+				keys = slice.call(arguments, 1)
+				iteratee = function(value, key, obj){
+					return key in object
+				}
+		}
+
+		for(var i = 0; i < keys.length; i++) {
+			var key = keys[i]
+			var value = object[key]
+			if(iteratee(value, key, object)){
+         result[key] = value
+			}
+		}
+		return result
+	}
+
+	var escapes = {
+		"'": "'",
+    '\\': '\\',
+    '\r': 'r',
+    '\n': 'n',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+	}
+
+	var escapeRegExp = /\\|'|\r|\n|\u2028\u2029/g
+
+	var escapeChar = function(match){
+		return '\\' + escapes[match]
+	}
+
+	_.template = function(templateString, settings){
+		var RULES = {
+			interpolate: /<%=([\s\S]+?)%>/g,
+			escape: /<%-([\s\S]+?)%>/g,
+			expression: /<%([\s\S]+?)%>/g
+		}
+		settings = _.extend({}, RULES, settings)
+		var matcher = new RegExp([
+			settings.interpolate.source,
+			settings.escape.source,
+			settings.expression.source,
+		].join('|'), 'g')
+		// var matcher = /<%=([\s\S]+?)%>|<%-([\s\S]+?)%>|<%([\s\S]+?)%>/g
+		var source = "_p+='"
+		var index = 0
+		templateString.replace(matcher, function(match, interpolate, escape, expression, offset){
+			 source += templateString.slice(index, offset).replace(escapeRegExp, escapeChar)
+			 index = offset + match.length
+       if(interpolate){
+         source += "'+\n ((_t=(" + interpolate + "))== null ? '' :_t)+ \n'"
+			 }else if(escape){
+				source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+			 }else if(expression){
+         source += "';\n" + expression + "\n_p+='"
+			 }
+		})
+		source += " ';"
+		source = "with(obj){\n"+ source +"}\n"
+		source = "var _t, _p='';" + source + "return _p;\n"
+		console.log(source)
+		var render = new Function("obj", source)
+		var template = function(data){
+      return render.call(null, data)
+		}
+		return template
+	}
+
+	//解析模板
+/* 	_.template = function(templateString, settings) {
+		//默认规则
+		var RULES = {
+			interpolate: /<%=([\s\S]+?)%>/g,
+			escape: /<%-([\s\S]+?)%>/g,
+			expression: /<%([\s\S]+?)%>/g
+		}
+		settings = _.extend({}, RULES, settings);
+
+		//解析 
+		var matcher = new RegExp([
+			settings.interpolate.source,
+			settings.escape.source,
+			settings.expression.source
+		].join("|"), "g");
+
+		var source = "_p+='";
+		var index = 0;
+		templateString.replace(matcher, function(match, interpolate, escape, expression, offset) {
+			source += templateString.slice(index, offset).replace(/\n/g, function(){
+				  return "\\n";
+			});
+			index = offset + match.length;
+			if (interpolate) { //name  _p+='';
+				source += "'+\n ((_t=(" + interpolate + ")) == null?'':_t)+\n'";
+			} else if (escape) {
+
+			} else if (expression) {   //obj.forEach(function(e, i, a){
+				source +="';\n"+expression+"\n_p+='"
+			}
+		});
+		source += " ';";
+		source = "with(obj){\n" + source + "}\n"
+		//渲染函数    字符串
+		source = "var _t,_p='';" + source + "return _p;\n";
+        console.log(source)
+		//data 传参的问题  预编译
+		var render = new Function("obj", source);
+
+		var template = function(data) {
+			return render.call(null, data); //renderString
+		}
+		return template;
+	} */
 
 	_.shuffle = function(array) {
 		return _.sample(array, Infinity)
