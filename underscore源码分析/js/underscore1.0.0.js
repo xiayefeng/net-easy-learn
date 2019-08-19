@@ -903,6 +903,13 @@
 		return obj === null
 	}
 
+	 // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
+  // previous owner. Returns a reference to the Underscore object.
+  _.noConflict = function() {
+    root._ = previousUnderscore;
+    return this;
+  };
+
 	_.mixin = function(obj) {
 		_.each(_.functions(obj), function(name) {
 			var func = obj[name]
