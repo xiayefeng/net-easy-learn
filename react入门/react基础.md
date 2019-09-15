@@ -1,3 +1,5 @@
+``` 
+
 **  standard.js 规范 **
 >
 > 1. npm install standard --save-dev
@@ -6,3 +8,4 @@
 >    {"lint": "standard --verbose|snazzy"}
 > 4. 使用编辑器插件，实时检查代码规范
 > 5. git pre-commit钩子, 在每次commit之前检查代码规范
+```
